@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-video-server
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: flask-video-server
+  minReadySeconds: 6
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 2
+  template:
+    metadata:
+      labels:
+        app: flask-video-server
+    spec:
+      containers:
+      - name: flask-video-server
+        image: thisdevydev32/ddm-flask-video-server:latest
+        ports:
+        - containerPort: 50053
+

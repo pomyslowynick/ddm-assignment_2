@@ -1,0 +1,32 @@
+version: '3'
+services:
+  flask-server:
+    build:
+      context: ./server/
+      dockerfile: Dockerfile
+    ports: 
+      - "50051"
+  flask-video-server:
+    build:
+      context: ./server_videos/
+      dockerfile: Dockerfile
+    ports: 
+      - "50053"
+  flask-analytics:
+    build:
+      context: ./analytics/
+      dockerfile: Dockerfile
+    ports: 
+      - "50052"
+    depends_on:
+      - "flask-server"
+      - "flask-video-server"
+    command: ["./wait-for-it.sh", "flask-server:50051", "--", "python", "flask_analytics.py"]
+  flask-client:
+    build:
+      context: ./client/
+      dockerfile: Dockerfile
+    ports: 
+      - "8080:8080"
+    depends_on:
+      - "flask-analytics"

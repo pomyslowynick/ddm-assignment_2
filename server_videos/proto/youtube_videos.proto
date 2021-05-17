@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+message YoutubeVideoData {
+  string video_id = 1;
+  string trending = 2;
+  string title = 3;
+  string channel_title = 4;
+  int32 category = 5;
+  string publish_time = 6;
+  string tags = 7;
+  int32 views = 8;
+  int32 likes = 9;
+  int32 dislikes = 10;
+  int32 comment_count = 11;
+  string thumbnail_link = 12;
+  bool comments_disabled = 13;
+  bool ratings_disabled = 14;
+  bool video_error_or_removed = 15;
+  string description = 16;
+}
+
+message VideoDataRequest {
+  int32 id = 1;
+}
+
+service VideoData {
+  rpc ReceiveVideoData(VideoDataRequest) returns (stream YoutubeVideoData);
+}
+

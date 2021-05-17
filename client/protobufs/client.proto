@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+message RedditPost {
+  string id = 1;
+  string title = 2;
+  int32 score = 3;
+  string author = 4;
+  string author_flair_text = 5;
+  string removed_by = 6;
+  float total_awards_received = 7;
+  string awarders = 8;
+  string created_utc = 9;
+  string full_link = 10;
+  int32 num_comments = 11;
+  bool over_18 = 12; 
+}
+
+message YoutubeVideoData {
+  string video_id = 1;
+  string trending = 2;
+  string title = 3;
+  string channel_title = 4;
+  int32 category = 5;
+  string publish_time = 6;
+  string tags = 7;
+  int32 views = 8;
+  int32 likes = 9;
+  int32 dislikes = 10;
+  int32 comment_count = 11;
+  string thumbnail_link = 12;
+  bool comments_disabled = 13;
+  bool ratings_disabled = 14;
+  bool video_error_or_removed = 15;
+  string description = 16;
+}
+
+message DeletedStats {
+  int32 moderator = 1;
+  int32 automod_filtered = 2;
+  int32 reddit = 3;
+  int32 deleted = 4;
+}
+
+message PostStats {
+  int32 total_posts = 1;
+  float average_score = 2;
+  int32 highest_rated_post = 3;
+  string post_sentiment = 4;
+  RedditPost post = 5;
+  DeletedStats delete_stats = 6;
+}
+
+message RankedVideo {
+  int32 score = 1;
+  string title = 2;
+}
+
+message VideoStats {
+  int32 total_videos = 1;
+  string description_sentiment = 2;
+  YoutubeVideoData video = 3;
+  RankedVideo most_disliked_video = 4;
+  RankedVideo most_liked_video = 5;
+  int32 comment_count_more_than_1000 = 6;
+  int32 comment_count_less_than_1000 = 7;
+}
+
+message StatsData {
+  VideoStats video_stats = 1;
+  PostStats post_stats = 2;
+}
+
+message PostRequest {
+  int32 id = 1;
+}
+
+service Analytics {
+  rpc ReceiveAnalytics(PostRequest) returns (stream StatsData);
+}

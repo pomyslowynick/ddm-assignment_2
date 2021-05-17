@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+message RedditPost {
+  string id = 1;
+  string title = 2;
+  int32 score = 3;
+  string author = 4;
+  string author_flair_text = 5;
+  string removed_by = 6;
+  float total_awards_received = 7;
+  string awarders = 8;
+  string created_utc = 9;
+  string full_link = 10;
+  int32 num_comments = 11;
+  bool over_18 = 12; 
+}
+
+message DeletedStats {
+  int32 moderator = 1;
+  int32 automod_filtered = 2;
+  int32 reddit = 3;
+  int32 deleted = 4;
+}
+message PostStats {
+  int32 total_posts = 1;
+  float average_score = 2;
+  int32 highest_rated_post = 3;
+  string post_sentiment = 4;
+  RedditPost post = 5;
+  DeletedStats delete_stats = 6;
+}
+
+message PostRequest {
+  int32 id = 1;
+}
+
+service PostsService {
+  rpc ReceivePosts(PostRequest) returns (stream RedditPost);
+}
+
+service Analytics {
+  rpc ReceivePostAnalytics(PostRequest) returns (stream PostStats);
+}

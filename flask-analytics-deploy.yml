@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-analytics
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: flask-analytics
+  minReadySeconds: 8
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 6
+  template:
+    metadata:
+      labels:
+        app: flask-analytics
+    spec:
+      containers:
+      - name: flask-analytics
+        image: thisdevydev32/ddm-flask-analytics:latest
+        ports:
+        - containerPort: 50052
+
+

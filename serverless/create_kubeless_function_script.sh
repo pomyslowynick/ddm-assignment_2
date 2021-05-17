@@ -1,0 +1,1 @@
+kubeless function deploy profanity-checker --runtime python3.6 --from-file serverless/description-profanity-checker.py --handler description-profanity-checker.check_for_profanities --dependencies serverless/requirements.txt

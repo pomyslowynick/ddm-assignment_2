@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Reddit Posts Analytics</title>
+    <meta name="description" content="Reddit Posts Analytics" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+</head>
+
+<body>
+    <div class="jumbotron">
+        <h1 class="text-center h1">YT Videos and Reddit Posts - Analytics Visualization</h1>
+    </div>
+    <div class="container col-12" style="display: flex;">
+        <div class="container col-6">
+            <div class="container">
+                <p id="average">Average score for last 3 minutes is: </p>
+                <p id="total_posts">Total number of posts published so far: </p>
+                <p id="highest_rated">The highest score for a post so far: </p>
+                <button id="postStatsBtn" class="btn-primary">Update Post Stats</button>
+            </div>
+            <div class="chart-container" style="position: relative; width:40vw; float: right">
+                <canvas id="myChart"></canvas>
+            </div>
+            
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Post Title</th>
+                        <th scope="col">Score</th>
+                        <th scope="col">Sentiment Analysis</th>
+                    </tr>
+                </thead>
+                <tbody id="posts_table">
+                </tbody>
+            </table>
+        </div>
+        <div class="container col-6">
+            <div class="container">
+                <p id="total_videos">Total number of videos published: </p>
+                <p id="most_disliked_video">Most disliked video: </p>
+                <p id="most_liked_video">Most liked video: </p>
+                <button id="videoStatsBtn" class="btn-primary">Update Video Stats</button>
+            </div>
+            <div class="chart-container" style="position: relative; width:40vw; float: right">
+                <canvas id="videoChart"></canvas>
+            </div>
+            
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Video Title</th>
+                        <th scope="col">Views</th>
+                        <th scope="col">Sentiment Analysis</th>
+                    </tr>
+                </thead>
+                <tbody id="videos_table">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script type=text/javascript>
+        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['moderator', 'reddit', 'automod', 'deleted'],
+                datasets: [{
+                    label: 'Number of removed posts',
+                    data: [],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)'
+        
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)'
+        
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+        var videoCtx = document.getElementById('videoChart').getContext('2d');
+        var videoChart = new Chart(videoCtx, {
+            type: 'pie',
+            data: {
+                labels: ['less than a 1000 comments', 'More than a 1000 comments'],
+                datasets: [{
+                    label: 'Number of comments in videos',
+                    data: [],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+        (function(){
+            $.getJSON(
+                $SCRIPT_ROOT+"/get_data",
+                function(data) {
+        $("#posts_table").prepend('<tr><th scope="row">' + data.encoded_post.total_posts +'</th>' + '<td>' + data.encoded_post.title + '</td>' + '<td>' + data.encoded_post.score + '</td>' + '<td>' + data.encoded_post.post_sentiment + '</td></tr>' );
+        $("#videos_table").prepend('<tr><th scope="row">' + data.encoded_video.total_videos +'</th>' + '<td>' + data.encoded_video.title + '</td>' + '<td>' + data.encoded_video.views + '</td>' + '<td>' + data.encoded_video.description_sentiment + '</td></tr>' );
+        $("#average").text('Average score for last 3 minutes is: ' + data.encoded_post.average_score_3_minutes);
+        $("#total_posts").text('Total number of posts published so far: ' + data.encoded_post.total_posts);
+        $("#total_videos").text('Total number of videos published so far: ' + data.encoded_video.total_videos);
+        $("#highest_rated").text('The highest score for a post so far: ' + data.encoded_post.highest_scored_post);
+        $("#most_disliked_video").text('The most disliked video so far is : ' + data.encoded_video.most_disliked_video.title + " with number of dislikes: " + data.encoded_video.most_disliked_video.dislikes);
+        $("#most_liked_video").text('The most liked video so far: ' + data.encoded_video.most_liked_video.title + " with number of likes: " + data.encoded_video.most_liked_video.likes);
+        myChart.data.datasets[0].data = [data.encoded_post.delete_stats.moderator, data.encoded_post.delete_stats.reddit, data.encoded_post.delete_stats.automod_filtered, data.encoded_post.delete_stats.deleted];
+        
+        videoChart.data.datasets[0].data = [data.encoded_video.comment_count_less_than_1000, data.encoded_video.comment_count_more_than_1000];
+        
+        return false;
+                }
+            );
+            setTimeout(arguments.callee, 1000);
+        })();
+        $(function(){
+            $('#postStatsBtn').click(function() {
+                myChart.update();
+            });
+        });
+
+        $(function(){
+            $('#videoStatsBtn').click(function() {
+                videoChart.update();
+            });
+        });
+         
+      </script>
+</body>
+
+</html>
